@@ -5,6 +5,7 @@ import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { PremiumGuard } from '../auth/premium.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SyncService, SyncData } from './sync.service';
+import axios from 'axios';
 
 @Resolver()
 export class SyncResolver {
@@ -16,9 +17,11 @@ export class SyncResolver {
     @CurrentUser() user: any,
     @Args('subscriptionType') subscriptionType: string,
     @Args('paymentMethod') paymentMethod: string,
+    @Args('paymentToken', { nullable: true }) paymentToken?: string,
+    @Args('amount', { nullable: true }) amount?: number,
   ): Promise<string> {
-    // Simulate payment processing
-    const paymentResult = await this.processPayment(paymentMethod, subscriptionType);
+    // Process payment with real integration
+    const paymentResult = await this.processPayment(paymentMethod, subscriptionType, paymentToken, amount);
     
     if (!paymentResult.success) {
       throw new Error(`Payment failed: ${paymentResult.message}`);
@@ -60,47 +63,105 @@ export class SyncResolver {
     return JSON.stringify(syncData);
   }
 
-  private async processPayment(paymentMethod: string, subscriptionType: string): Promise<{ success: boolean; message: string }> {
-    // Simulate payment processing for different methods
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
-
-    // Simulate different payment scenarios
-    const random = Math.random();
-    
-    if (random < 0.1) { // 10% failure rate for simulation
+  private async processPayment(paymentMethod: string, subscriptionType: string, paymentToken?: string, amount?: number): Promise<{ success: boolean; message: string }> {
+    try {
+      switch (paymentMethod) {
+        case 'paypal':
+          return await this.processPayPalPayment(paymentToken, amount);
+        case 'google_pay':
+        case 'apple_pay':
+        case 'card':
+          // For now, simulate other payment methods
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          return {
+            success: true,
+            message: `Payment processed successfully via ${paymentMethod}`
+          };
+        default:
+          return {
+            success: false,
+            message: 'Unsupported payment method'
+          };
+      }
+    } catch (error) {
       return {
         success: false,
-        message: 'Payment declined. Please try a different payment method.'
+        message: `Payment processing error: ${error.message}`
+      };
+    }
+  }
+
+  private async processPayPalPayment(paymentToken?: string, amount?: number): Promise<{ success: boolean; message: string }> {
+    if (!paymentToken) {
+      return {
+        success: false,
+        message: 'PayPal payment token is required'
       };
     }
 
-    // Simulate successful payment processing
-    switch (paymentMethod) {
-      case 'google_pay':
+    try {
+      // Get PayPal access token
+      const accessToken = await this.getPayPalAccessToken();
+      
+      // Capture the payment
+      const captureResponse = await axios.post(
+        `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders/${paymentToken}/capture`,
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (captureResponse.data.status === 'COMPLETED') {
         return {
           success: true,
-          message: 'Payment processed successfully via Google Pay'
+          message: 'PayPal payment processed successfully'
         };
-      case 'apple_pay':
-        return {
-          success: true,
-          message: 'Payment processed successfully via Apple Pay'
-        };
-      case 'paypal':
-        return {
-          success: true,
-          message: 'Payment processed successfully via PayPal'
-        };
-      case 'card':
-        return {
-          success: true,
-          message: 'Payment processed successfully via Credit Card'
-        };
-      default:
+      } else {
         return {
           success: false,
-          message: 'Unsupported payment method'
+          message: 'PayPal payment was not completed'
         };
+      }
+    } catch (error) {
+      console.error('PayPal payment error:', error.response?.data || error.message);
+      return {
+        success: false,
+        message: 'PayPal payment failed'
+      };
+    }
+  }
+
+  private async getPayPalAccessToken(): Promise<string> {
+    const clientId = process.env.PAYPAL_CLIENT_ID;
+    const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+    const baseUrl = process.env.PAYPAL_BASE_URL;
+
+    if (!clientId || !clientSecret || !baseUrl) {
+      throw new Error('PayPal configuration is missing');
+    }
+
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+    try {
+      const response = await axios.post(
+        `${baseUrl}/v1/oauth2/token`,
+        'grant_type=client_credentials',
+        {
+          headers: {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
+
+      return response.data.access_token;
+    } catch (error) {
+      console.error('PayPal token error:', error.response?.data || error.message);
+      throw new Error('Failed to get PayPal access token');
     }
   }
 }
