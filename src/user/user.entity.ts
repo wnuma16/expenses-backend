@@ -22,6 +22,14 @@ export class User {
   @Column({ nullable: true })
   name?: string;
 
+  @Field()
+  @Column({ default: false })
+  isPremium: boolean;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true, type: 'timestamp' })
+  premiumExpiresAt?: Date;
+
   @OneToMany(() => Expense, expense => expense.user)
   expenses: Expense[];
 
