@@ -21,18 +21,18 @@ export class IncomeService {
     return this.incomeRepository.find({ where: { user: { id: user.id } } });
   }
 
-  async findOne(id: number, user: User): Promise<Income | null> {
+  async findOne(id: string, user: User): Promise<Income | null> {
     return this.incomeRepository.findOne({ where: { id, user: { id: user.id } } });
   }
 
-  async update(id: number, data: Partial<Income>, user: User): Promise<Income> {
+  async update(id: string, data: Partial<Income>, user: User): Promise<Income> {
     const income = await this.findOne(id, user);
     if (!income) throw new Error('Income not found');
     Object.assign(income, data);
     return this.incomeRepository.save(income);
   }
 
-  async remove(id: number, user: User): Promise<boolean> {
+  async remove(id: string, user: User): Promise<boolean> {
     await this.incomeRepository.delete({ id, user: { id: user.id } });
     return true;
   }

@@ -19,7 +19,7 @@ export class IncomeResolver {
 
   @UseGuards(GqlAuthGuard)
   @Query(() => Income)
-  async income(@Args('id') id: number, @Context() ctx) {
+  async income(@Args('id') id: string, @Context() ctx) {
     return this.incomeService.findOne(id, ctx.req.user);
   }
 
@@ -32,14 +32,14 @@ export class IncomeResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Income)
-  async updateIncome(@Args('id') id: number, @Args('input') input: UpdateIncomeInput, @Context() ctx) {
+  async updateIncome(@Args('id') id: string, @Args('input') input: UpdateIncomeInput, @Context() ctx) {
     const data = { ...input, date: input.date ? new Date(input.date) : undefined };
     return this.incomeService.update(id, data, ctx.req.user);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
-  async removeIncome(@Args('id') id: number, @Context() ctx) {
+  async removeIncome(@Args('id') id: string, @Context() ctx) {
     return this.incomeService.remove(id, ctx.req.user);
   }
 }

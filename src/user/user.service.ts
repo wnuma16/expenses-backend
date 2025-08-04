@@ -15,18 +15,18 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOne(id: number): Promise<User | null> {
-    return this.userRepository.findOne({ where: { id } });
+  async findOne(id: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { id: id } });
   }
 
-  async update(id: number, name?: string): Promise<User> {
+  async update(id: string, name?: string): Promise<User> {
     const user = await this.findOne(id);
     if (!user) throw new Error('User not found');
     if (name) user.name = name;
     return this.userRepository.save(user);
   }
 
-  async remove(id: number): Promise<boolean> {
+  async remove(id: string): Promise<boolean> {
     await this.userRepository.delete(id);
     return true;
   }

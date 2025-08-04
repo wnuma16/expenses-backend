@@ -24,7 +24,7 @@ export class SyncService {
     private readonly incomeRepository: Repository<Income>,
   ) {}
 
-  async syncUserData(userId: number, localData: SyncData): Promise<{ success: boolean; message: string }> {
+  async syncUserData(userId: string, localData: SyncData): Promise<{ success: boolean; message: string }> {
     try {
       // Verify user is premium
       const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -56,7 +56,7 @@ export class SyncService {
     }
   }
 
-  async getUserSyncData(userId: number): Promise<SyncData> {
+  async getUserSyncData(userId: string): Promise<SyncData> {
     const expenses = await this.expenseRepository.find({
       where: { user: { id: userId } },
       order: { date: 'DESC' },
@@ -75,7 +75,7 @@ export class SyncService {
     };
   }
 
-  async upgradeToPremium(userId: number, subscriptionType: string): Promise<{ success: boolean; message: string }> {
+  async upgradeToPremium(userId: string, subscriptionType: string): Promise<{ success: boolean; message: string }> {
     try {
       const user = await this.userRepository.findOne({ where: { id: userId } });
       if (!user) {

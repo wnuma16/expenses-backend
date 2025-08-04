@@ -21,7 +21,7 @@ export class ExpenseService {
     return this.expenseRepository.find({ where: { user: { id: user.id } } });
   }
 
-  async findOne(id: number, user: User): Promise<Expense> {
+  async findOne(id: string, user: User): Promise<Expense> {
     const expense = await this.expenseRepository.findOne({ where: { id, user: { id: user.id } } });
     if (!expense) {
       throw new Error('Expense not found');
@@ -29,13 +29,13 @@ export class ExpenseService {
     return expense;
   }
 
-  async update(id: number, data: Partial<Expense>, user: User): Promise<Expense> {
+  async update(id: string, data: Partial<Expense>, user: User): Promise<Expense> {
     const expense = await this.findOne(id, user);
     Object.assign(expense, data);
     return this.expenseRepository.save(expense);
   }
 
-  async remove(id: number, user: User): Promise<boolean> {
+  async remove(id: string, user: User): Promise<boolean> {
     await this.expenseRepository.delete({ id, user: { id: user.id } });
     return true;
   }

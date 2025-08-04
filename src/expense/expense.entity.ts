@@ -7,8 +7,8 @@ import { User } from '../user/user.entity';
 @Entity()
 export class Expense {
   @Field(() => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Field()
   @Column()

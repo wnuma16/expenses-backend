@@ -19,7 +19,7 @@ export class ExpenseResolver {
 
   @UseGuards(GqlAuthGuard)
   @Query(() => Expense)
-  async expense(@Args('id') id: number, @Context() ctx) {
+  async expense(@Args('id') id: string, @Context() ctx) {
     return this.expenseService.findOne(id, ctx.req.user);
   }
 
@@ -35,7 +35,7 @@ export class ExpenseResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Expense)
-  async updateExpense(@Args('id') id: number, @Args('input') input: UpdateExpenseInput, @Context() ctx) {
+  async updateExpense(@Args('id') id: string, @Args('input') input: UpdateExpenseInput, @Context() ctx) {
     const updateData = {
       ...input,
       date: input.date ? new Date(input.date) : undefined,
@@ -45,7 +45,7 @@ export class ExpenseResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
-  async removeExpense(@Args('id') id: number, @Context() ctx) {
+  async removeExpense(@Args('id') id: string, @Context() ctx) {
     return this.expenseService.remove(id, ctx.req.user);
   }
 }
