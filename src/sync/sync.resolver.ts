@@ -65,7 +65,13 @@ export class SyncResolver {
         throw new Error(result.message);
       }
 
-      return 'Data synchronized successfully';
+      return JSON.stringify({
+        success: true,
+        message: result.message,
+        synced_expenses: result.synced_expenses || [],
+        synced_incomes: result.synced_incomes || [],
+        synced_accounts: result.synced_accounts || [],
+      });
     } catch (error) {
       throw new Error(`Sync failed: ${error.message}`);
     }

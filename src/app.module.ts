@@ -7,7 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ExpenseModule } from './expense/expense.module';
 import { IncomeModule } from './income/income.module';
+import { AccountModule } from './account/account.module';
 import { SyncModule } from './sync/sync.module';
+import { MonthlyBudgetModule } from './monthly-budget/monthly-budget.module';
+import { CustomCategoryModule } from './custom-category/custom-category.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME } from './config';
 
@@ -39,7 +42,10 @@ import { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME } from './config';
     UserModule,
     ExpenseModule,
     IncomeModule,
+    AccountModule,
     SyncModule,
+    MonthlyBudgetModule,
+    CustomCategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

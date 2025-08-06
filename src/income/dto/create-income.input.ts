@@ -19,4 +19,8 @@ export class CreateIncomeInput {
   @Field({ nullable: true })
   @IsOptional()
   note?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  account_id?: string;
 }
